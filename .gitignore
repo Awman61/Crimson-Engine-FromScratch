@@ -22,6 +22,9 @@ install_manifest.txt
 CTestTestfile.cmake
 Makefile
 
+# FetchContent dependencies
+_build/_deps/
+
 # IDE
 .vscode/
 .idea/
