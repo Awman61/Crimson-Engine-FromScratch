@@ -44,10 +44,11 @@ CrimsonEngine/
 │   ├── Engine.h
 │   ├── VulkanContext.h
 │   └── ImGuiManager.h
-├── third_party/            # (Legacy) optional local copies of dependencies (not required; FetchContent downloads on configure)
+├── third_party/            # Local third-party dependencies (cloned manually; no downloads during CMake)
 │   ├── glfw/
 │   ├── glm/
-│   └── imgui/
+│   ├── imgui/              # docking branch
+│   └── imgui_cmake/        # small CMake wrapper target for ImGui
 ├── CMake/                  # CMake modules (optional)
 └── presets/                # Configuration presets (optional)
 ```
@@ -144,12 +145,22 @@ When you run the application, you should see:
 
 ## Dependencies
 
-Dependencies are automatically downloaded during CMake configuration using FetchContent:
+Dependencies are expected to exist locally under `third_party/` (no network calls during CMake configuration):
 
-- **GLFW 3.4**: Window and input management (downloaded from https://github.com/glfw/glfw)
-- **GLM 0.9.9.8**: Mathematics library (downloaded from https://github.com/g-truc/glm)
-- **Dear ImGui (Docking)**: Immediate mode GUI (downloaded from https://github.com/ocornut/imgui, `GIT_TAG docking`)
-- **Vulkan SDK**: Graphics API (must be installed separately from [LunarG](https://vulkan.lunarg.com/))
+- **GLFW 3.4**: Windowing and input (https://github.com/glfw/glfw)
+- **GLM 0.9.9.8**: Math library (https://github.com/g-truc/glm)
+- **Dear ImGui (Docking)**: UI library (https://github.com/ocornut/imgui, docking branch)
+- **Vulkan SDK**: Graphics API (install separately from [LunarG](https://vulkan.lunarg.com/))
+
+### One-time dependency setup
+
+From the repo root:
+
+```bash
+git clone https://github.com/glfw/glfw.git third_party/glfw
+git clone https://github.com/g-truc/glm.git third_party/glm
+git clone -b docking https://github.com/ocornut/imgui.git third_party/imgui
+```
 
 ## Development
 

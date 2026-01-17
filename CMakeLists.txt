@@ -1,18 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
+
 project(CrimsonEngine VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 if(MSVC)
-    add_compile_options(/W4 /WX- /permissive-)
+    add_compile_options(/W4 /permissive-)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 else()
@@ -21,64 +16,49 @@ endif()
 
 find_package(Vulkan REQUIRED)
 
-include(FetchContent)
+# -----------------------------------------------------------------------------
+# Third-party dependencies (no network calls; expected to exist locally)
+# -----------------------------------------------------------------------------
 
+# GLFW
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/CMakeLists.txt")
+    message(FATAL_ERROR
+        "GLFW not found. Please clone it to third_party/glfw (e.g. git clone https://github.com/glfw/glfw.git third_party/glfw)")
+endif()
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/glfw)
 
+# GLM
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm/CMakeLists.txt")
+    message(FATAL_ERROR
+        "GLM not found. Please clone it to third_party/glm (e.g. git clone https://github.com/g-truc/glm.git third_party/glm)")
+endif()
 add_subdirectory(third_party/glm)
 
-FetchContent_Declare(
-    imgui
-    GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG docking
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(imgui)
+# Dear ImGui (Docking) - clone docking branch to third_party/imgui
+add_subdirectory(third_party/imgui_cmake)
 
-add_library(imgui STATIC
-    ${imgui_SOURCE_DIR}/imgui.cpp
-    ${imgui_SOURCE_DIR}/imgui_demo.cpp
-    ${imgui_SOURCE_DIR}/imgui_draw.cpp
-    ${imgui_SOURCE_DIR}/imgui_tables.cpp
-    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
-)
+# -----------------------------------------------------------------------------
+# Engine target
+# -----------------------------------------------------------------------------
 
-target_include_directories(imgui PUBLIC
-    ${imgui_SOURCE_DIR}
-    ${imgui_SOURCE_DIR}/backends
-)
-
-target_link_libraries(imgui PUBLIC
-    Vulkan::Vulkan
-    glfw
-)
-
-set(ENGINE_SOURCES
+add_executable(${PROJECT_NAME}
     src/main.cpp
     src/Engine.cpp
     src/VulkanContext.cpp
     src/ImGuiManager.cpp
-)
 
-set(ENGINE_HEADERS
     include/Engine.h
     include/VulkanContext.h
     include/ImGuiManager.h
 )
 
-add_executable(${PROJECT_NAME}
-    ${ENGINE_SOURCES}
-    ${ENGINE_HEADERS}
-)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
