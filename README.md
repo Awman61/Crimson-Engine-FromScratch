@@ -44,8 +44,10 @@ CrimsonEngine/
 │   ├── Engine.h
 │   ├── VulkanContext.h
 │   └── ImGuiManager.h
-├── third_party/            # External dependencies
-│   └── imgui/              # Dear ImGui library (local copy)
+├── third_party/            # (Legacy) optional local copies of dependencies (not required; FetchContent downloads on configure)
+│   ├── glfw/
+│   ├── glm/
+│   └── imgui/
 ├── CMake/                  # CMake modules (optional)
 └── presets/                # Configuration presets (optional)
 ```
@@ -144,9 +146,9 @@ When you run the application, you should see:
 
 Dependencies are automatically downloaded during CMake configuration using FetchContent:
 
-- **GLFW 3.4**: Window and input management (auto-downloaded via FetchContent)
-- **GLM 0.9.9.8**: Mathematics library (auto-downloaded via FetchContent)
-- **Dear ImGui**: Immediate mode GUI (local copy in third_party/imgui)
+- **GLFW 3.4**: Window and input management (downloaded from https://github.com/glfw/glfw)
+- **GLM 0.9.9.8**: Mathematics library (downloaded from https://github.com/g-truc/glm)
+- **Dear ImGui (Docking)**: Immediate mode GUI (downloaded from https://github.com/ocornut/imgui, `GIT_TAG docking`)
 - **Vulkan SDK**: Graphics API (must be installed separately from [LunarG](https://vulkan.lunarg.com/))
 
 ## Development
