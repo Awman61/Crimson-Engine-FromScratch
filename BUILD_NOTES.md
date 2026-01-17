@@ -1,31 +1,24 @@
 # Build Notes
 
-## Dependency Management (Updated)
+## Dependency Management
 
-This project now uses CMake FetchContent for automatic dependency downloading:
+This project uses **local** third-party dependencies via `add_subdirectory()`.
 
-- **GLFW 3.4**: Automatically downloaded from GitHub (https://github.com/glfw/glfw) on first CMake configuration
-- **GLM 0.9.9.8**: Automatically downloaded from GitHub (https://github.com/g-truc/glm) on first CMake configuration
-- **Dear ImGui (Docking)**: Automatically downloaded from GitHub (https://github.com/ocornut/imgui) using `GIT_TAG docking`
+- No FetchContent
+- No automatic downloads
+- CMake will not make any network calls
 
-### First-time Build
+### One-time dependency setup
 
-When running CMake for the first time, it will automatically download GLFW, GLM, and Dear ImGui from their respective GitHub repositories. This may take a few moments depending on your internet connection.
+Clone the required dependencies into `third_party/`:
 
-### Old Third-Party Dependencies
+```bash
+git clone https://github.com/glfw/glfw.git third_party/glfw
+git clone https://github.com/g-truc/glm.git third_party/glm
+git clone -b docking https://github.com/ocornut/imgui.git third_party/imgui
+```
 
-The following directories in third_party are now deprecated and no longer used by the build system:
-- third_party/glfw
-- third_party/glm
-- third_party/imgui
+### Notes
 
-These can be safely removed from the repository if desired, as FetchContent will download fresh copies to the build directory (_build/_deps/).
-
-### Updating Dependencies
-
-To update to newer versions, modify the GIT_TAG values in CMakeLists.txt:
-- GLFW: Change `GIT_TAG 3.4` to a newer version tag
-- GLM: Change `GIT_TAG 0.9.9.8` to a newer version tag
-- ImGui: Change `GIT_TAG docking` to a newer tag/commit (or keep `docking` to follow the docking branch)
-
-Then clean your build directory and reconfigure with CMake.
+- GLFW tests/examples/docs are disabled in CMake.
+- ImGui is built as a small static library (core + GLFW/Vulkan backends) via `third_party/imgui_cmake/`.
