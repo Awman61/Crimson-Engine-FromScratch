@@ -2,23 +2,30 @@
 
 ## Dependency Management
 
-This project uses **local** third-party dependencies via `add_subdirectory()`.
+This project now uses **CMake FetchContent** for automatic dependency management.
 
-- No FetchContent
-- No automatic downloads
-- CMake will not make any network calls
+- All dependencies are downloaded automatically during CMake configuration
+- No manual git cloning required
+- No local third-party directory needed
+- Works out of the box: clone repo → run CMake → everything works
 
-### One-time dependency setup
+### Dependencies
 
-Clone the required dependencies into `third_party/`:
+- **GLFW 3.4**: Windowing and input
+- **GLM 1.0.0**: Math library  
+- **Dear ImGui (Docking)**: UI library with GLFW/Vulkan backends
+- **Vulkan SDK**: Graphics API (must be installed separately)
 
-```bash
-git clone https://github.com/glfw/glfw.git third_party/glfw
-git clone https://github.com/g-truc/glm.git third_party/glm
-git clone -b docking https://github.com/ocornut/imgui.git third_party/imgui
-```
+### Build Process
+
+1. Install Vulkan SDK from [LunarG](https://vulkan.lunarg.com/)
+2. Clone this repository
+3. Run CMake (all dependencies will be downloaded automatically)
+4. Build and run
 
 ### Notes
 
-- GLFW tests/examples/docs are disabled in CMake.
-- ImGui is built as a small static library (core + GLFW/Vulkan backends) via `third_party/imgui_cmake/`.
+- GLFW tests/examples/docs are disabled via cache variables
+- GLM is configured as header-only library
+- ImGui is built as a static library with GLFW and Vulkan backends
+- All dependencies use specific git tags for reproducibility
