@@ -17,28 +17,68 @@ endif()
 find_package(Vulkan REQUIRED)
 
 # -----------------------------------------------------------------------------
-# Third-party dependencies (no network calls; expected to exist locally)
+# FetchContent dependencies (automatic download and configuration)
 # -----------------------------------------------------------------------------
 
-# GLFW
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/CMakeLists.txt")
-    message(FATAL_ERROR
-        "GLFW not found. Please clone it to third_party/glfw (e.g. git clone https://github.com/glfw/glfw.git third_party/glfw)")
-endif()
+include(FetchContent)
+
+# Set cache variables for GLFW before FetchContent_MakeAvailable
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-add_subdirectory(third_party/glfw)
 
-# GLM
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm/CMakeLists.txt")
-    message(FATAL_ERROR
-        "GLM not found. Please clone it to third_party/glm (e.g. git clone https://github.com/g-truc/glm.git third_party/glm)")
-endif()
-add_subdirectory(third_party/glm)
+# Set cache variables for GLM before FetchContent_MakeAvailable
+set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLM_BUILD_LIBRARY OFF CACHE BOOL "" FORCE)
+set(CMAKE_POLICY_DEFAULT_CMP0048 NEW CACHE STRING "" FORCE)
 
-# Dear ImGui (Docking) - clone docking branch to third_party/imgui
-add_subdirectory(third_party/imgui_cmake)
+# Declare all dependencies
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+)
+
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 1.0.0
+)
+
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG docking
+)
+
+# Make dependencies available in order
+FetchContent_MakeAvailable(glfw glm imgui)
+
+# Create ImGui target after imgui is available
+add_library(imgui STATIC)
+add_library(imgui::imgui ALIAS imgui)
+
+target_sources(imgui PRIVATE
+    "${imgui_SOURCE_DIR}/imgui.cpp"
+    "${imgui_SOURCE_DIR}/imgui_demo.cpp"
+    "${imgui_SOURCE_DIR}/imgui_draw.cpp"
+    "${imgui_SOURCE_DIR}/imgui_tables.cpp"
+    "${imgui_SOURCE_DIR}/imgui_widgets.cpp"
+    "${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp"
+    "${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp"
+)
+
+target_include_directories(imgui PUBLIC
+    "${imgui_SOURCE_DIR}"
+    "${imgui_SOURCE_DIR}/backends"
+)
+
+target_link_libraries(imgui PUBLIC
+    Vulkan::Vulkan
+    glfw
+)
+
+target_compile_features(imgui PUBLIC cxx_std_17)
 
 # -----------------------------------------------------------------------------
 # Engine target
@@ -64,7 +104,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Vulkan::Vulkan
     glfw
-    glm::glm
+    glm
     imgui
 )
 

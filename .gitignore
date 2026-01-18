@@ -22,13 +22,11 @@ install_manifest.txt
 CTestTestfile.cmake
 Makefile
 
-# FetchContent dependencies (legacy)
+# FetchContent dependencies
 _build/_deps/
 
-# Third-party dependencies (cloned manually / via submodules)
-third_party/glfw/
-third_party/glm/
-third_party/imgui/
+# Third-party directory (empty, but keep it for future use)
+# third_party/ is now empty - dependencies are fetched automatically
 
 # IDE
 .vscode/
